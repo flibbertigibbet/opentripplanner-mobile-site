@@ -186,6 +186,10 @@ map.on('locationfound', function(e) {
 */
 
 $(document).ready(function() {
+    $('#options-btn').click(function() {
+        console.log('yo');
+    });
+
     L.mapbox.accessToken = 'pk.eyJ1IjoiYmFuZGVya2F0IiwiYSI6ImVOaHNNa0UifQ.WkAeLdchgBBxJvmZ8tk0Yw';
 
     geocoderControlFromPlace = L.mapbox.geocoderControl('mapbox.places',
