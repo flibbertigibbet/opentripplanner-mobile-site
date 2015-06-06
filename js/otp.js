@@ -1,18 +1,39 @@
+var fromMarker = null;
+var toMarker = null;
+
+var options = {
+    from: null,
+    to: null
+};
+
 $(document).ready(function() {
     L.mapbox.accessToken = 'pk.eyJ1IjoiYmFuZGVya2F0IiwiYSI6ImVOaHNNa0UifQ.WkAeLdchgBBxJvmZ8tk0Yw';
 
+    var geocoderControlFromPlace = L.mapbox.geocoderControl('mapbox.places',
+        {
+            autocomplete: true
+        });
+
     var geocoderControlToPlace = L.mapbox.geocoderControl('mapbox.places',
         {
-            keepOpen: true,
+            //keepOpen: true,
             autocomplete: true
         });
 
     window.geocoder = geocoderControlToPlace;
 
-    var map = L.mapbox.map('map', 'mapbox.streets')
+    var map = L.mapbox.map('map', 'mapbox.streets', {zoomControl: false})
               // center on City Hall
               .setView([39.952684, -75.163733], 13)
+              .addControl(geocoderControlFromPlace)
               .addControl(geocoderControlToPlace);
+
+    // put zoom control top right
+    new L.Control.Zoom({ position: 'topright' }).addTo(map);
+
+    // set placeholder text in geocode controls
+    geocoderControlFromPlace._input.placeholder = "From";
+    geocoderControlToPlace._input.placeholder = "To";
 
     //L.control.locate().addTo(map);
 
@@ -84,7 +105,11 @@ $(document).ready(function() {
     }
 
     var tripLayer = null;
-    function planTrip(to) {
+    function planTrip() {
+        if (!options.from || !options.to) {
+            return;
+        }
+
         // options to pass to OTP as-is
         var otpOptions = {
             mode: 'WALK',
@@ -92,10 +117,9 @@ $(document).ready(function() {
             wheelchair: false,
             maxWalk: 999999
         };
-        var when = moment(); // now
+        var when = moment(); // TODO: select date/time
 
-        var from = [39.952684, -75.163733]; // TODO: origin other than city hall
-        getDirections(from, to, when, otpOptions).then(function(result) {
+        getDirections(options.from, options.to, when, otpOptions).then(function(result) {
             console.log('got directions!');
             console.log(result);
 
@@ -114,43 +138,67 @@ $(document).ready(function() {
         });
     }
 
-    var toMarker = null;
-
     // helper for when marker dragged to new place
     function markerDrag(event) {
         var marker = event.target;
+        window.marker = marker;
         var position = marker.getLatLng();
         var latlng = new L.LatLng(position.lat, position.lng);
         marker.setLatLng(latlng, {draggable: true});
         map.panTo(latlng); // allow user to drag marker off map
 
-        // TODO: reverse geocode? what if origin?
-        marker.setPopupContent('<h3>Destination:</h3><p>' + position.toString() + '</p>');
+        // TODO: reverse geocode?
+        marker.setPopupContent('<h3>' + marker.options.title + ':</h3><p>' + position.toString() + '</p>');
 
-        planTrip([position.lat, position.lng]);
+        if (marker.options.title === 'Origin') {
+            options.from = [position.lat, position.lng];
+        } else {
+            options.to = [position.lat, position.lng];
+        }
+        
+        planTrip();
     }
 
-    geocoderControlToPlace.on('select', function(res) {
-        var coords = new L.LatLng(res.feature.center[1], res.feature.center[0]);
-        var placeName = res.feature.place_name; // one-line address
+    function setGeocodeMarker(marker, label, result) {
+        // TODO: handle geocode fail
+        var placeName = result.feature.place_name; // one-line address
+        var coords = new L.LatLng(result.feature.center[1], result.feature.center[0]);
 
-        if (!toMarker) {
-            toMarker = L.marker(coords, {
-                icon: L.mapbox.marker.icon({
-                    'marker-color': 'ff8888' // green: '33CC33'
-                }),
-                draggable: true
-            });
-            toMarker.bindPopup(placeName);
-            toMarker.addTo(map);
-            toMarker.on('dragend', markerDrag);
+        var color = null;
+
+        if (label === 'Origin') {
+            options.from = [result.feature.center[1], result.feature.center[0]];
+            color = '33CC33';
         } else {
-            toMarker.setLatLng(coords);
-            toMarker.setPopupContent('<h3>Destination:</h3><p>' + placeName + '</p>');
+            options.to = [result.feature.center[1], result.feature.center[0]];
+            color = 'FF5050';
         }
 
-        planTrip([res.feature.center[1], res.feature.center[0]]);
-        
+        if (!marker) {
+            marker = L.marker(coords, {
+                icon: L.mapbox.marker.icon({
+                    'marker-color':  color
+                }),
+                draggable: true,
+                title: label // hover text
+            });
+            marker.bindPopup(placeName);
+            marker.addTo(map);
+            marker.on('dragend', markerDrag);
+        } else {
+            marker.setLatLng(coords);
+            marker.setPopupContent('<h3>' + label + ':</h3><p>' + placeName + '</p>');
+        }
+
+        planTrip();
+    }
+
+    geocoderControlFromPlace.on('select', function(res) {
+        setGeocodeMarker(fromMarker, 'Origin', res);
+    });
+
+    geocoderControlToPlace.on('select', function(res) {
+        setGeocodeMarker(toMarker, 'Destination', res);
         //L.mapbox.featureLayer(res.feature).addTo(map);
     });
 
