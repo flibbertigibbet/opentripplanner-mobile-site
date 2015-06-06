@@ -153,7 +153,6 @@ $(document).ready(function() {
         marker.setLatLng(latlng, {draggable: true});
         map.panTo(latlng); // allow user to drag marker off map
 
-        // TODO: reverse geocode?
         marker.setPopupContent('<h3>' + marker.options.title + ':</h3><p>' + position.toString() + '</p>');
 
         if (marker.options.title === 'Origin') {
@@ -166,7 +165,6 @@ $(document).ready(function() {
     }
 
     function setGeocodeMarker(markerType, result) {
-        // TODO: handle geocode fail
         var placeName = result.feature.place_name; // one-line address
         var coords = new L.LatLng(result.feature.center[1], result.feature.center[0]);
 
@@ -192,17 +190,31 @@ $(document).ready(function() {
         planTrip();
     }
 
+    function geocodeSelect(control, locationType, result) {
+        setGeocodeMarker(locationType, result);
+        // clear input and hide it
+        $(control._form.firstChild).val('');
+        control._toggle();
+    }
+
+    // when user selects address from autocomplete
     geocoderControlFromPlace.on('select', function(res) {
-        setGeocodeMarker('from', res);
+        geocodeSelect(geocoderControlFromPlace, 'from', res);
     });
 
     geocoderControlToPlace.on('select', function(res) {
-        setGeocodeMarker('to', res);
-        //L.mapbox.featureLayer(res.feature).addTo(map);
+        geocodeSelect(geocoderControlToPlace, 'to', res);
     });
 
-    // TODO: when only one result
-    //geocoderControlToPlace.on('autoselect', function(res) {
+    // when only one result and it is auto-selected
+    geocoderControlFromPlace.on('autoselect', function(res) {
+        geocodeSelect(geocoderControlFromPlace, 'from', res);
+    });
+
+    geocoderControlToPlace.on('autoselect', function(res) {
+        geocodeSelect(geocoderControlToPlace, 'to', res);
+    });
+
 
     //map.locate();
     // Once we've got a position, zoom and center the map
