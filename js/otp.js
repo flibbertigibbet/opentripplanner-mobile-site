@@ -1,9 +1,16 @@
-var fromMarker = null;
-var toMarker = null;
-
-var options = {
-    from: null,
-    to: null
+var markers = {
+    from: {
+        marker: null,
+        label: 'Origin',
+        location: null,
+        color: '33CC33' // green
+    },
+    to: {
+        marker: null,
+        label: 'Destination',
+        location: null,
+        color: 'FF5050' // pink
+    }
 };
 
 $(document).ready(function() {
@@ -106,7 +113,7 @@ $(document).ready(function() {
 
     var tripLayer = null;
     function planTrip() {
-        if (!options.from || !options.to) {
+        if (!markers.from.location || !markers.to.location) {
             return;
         }
 
@@ -119,7 +126,7 @@ $(document).ready(function() {
         };
         var when = moment(); // TODO: select date/time
 
-        getDirections(options.from, options.to, when, otpOptions).then(function(result) {
+        getDirections(markers.from.location, markers.to.location, when, otpOptions).then(function(result) {
             console.log('got directions!');
             console.log(result);
 
@@ -141,7 +148,6 @@ $(document).ready(function() {
     // helper for when marker dragged to new place
     function markerDrag(event) {
         var marker = event.target;
-        window.marker = marker;
         var position = marker.getLatLng();
         var latlng = new L.LatLng(position.lat, position.lng);
         marker.setLatLng(latlng, {draggable: true});
@@ -151,54 +157,47 @@ $(document).ready(function() {
         marker.setPopupContent('<h3>' + marker.options.title + ':</h3><p>' + position.toString() + '</p>');
 
         if (marker.options.title === 'Origin') {
-            options.from = [position.lat, position.lng];
+            markers.from.location = [position.lat, position.lng];
         } else {
-            options.to = [position.lat, position.lng];
+            markers.to.location = [position.lat, position.lng];
         }
         
         planTrip();
     }
 
-    function setGeocodeMarker(marker, label, result) {
+    function setGeocodeMarker(markerType, result) {
         // TODO: handle geocode fail
         var placeName = result.feature.place_name; // one-line address
         var coords = new L.LatLng(result.feature.center[1], result.feature.center[0]);
 
-        var color = null;
+        markers[markerType].location = [result.feature.center[1], result.feature.center[0]];
+        var popupData = '<h3>' + markers[markerType].label + ':</h3><p>' + placeName + '</p>';
 
-        if (label === 'Origin') {
-            options.from = [result.feature.center[1], result.feature.center[0]];
-            color = '33CC33';
-        } else {
-            options.to = [result.feature.center[1], result.feature.center[0]];
-            color = 'FF5050';
-        }
-
-        if (!marker) {
-            marker = L.marker(coords, {
+        if (!markers[markerType].marker) {
+            markers[markerType].marker = L.marker(coords, {
                 icon: L.mapbox.marker.icon({
-                    'marker-color':  color
+                    'marker-color':  markers[markerType].color
                 }),
                 draggable: true,
-                title: label // hover text
-            });
-            marker.bindPopup(placeName);
-            marker.addTo(map);
-            marker.on('dragend', markerDrag);
+                title: markers[markerType].label // hover text
+            }
+            ).bindPopup(popupData)
+            .on('dragend', markerDrag)
+            .addTo(map);
         } else {
-            marker.setLatLng(coords);
-            marker.setPopupContent('<h3>' + label + ':</h3><p>' + placeName + '</p>');
+            markers[markerType].marker.setLatLng(coords);
+            markers[markerType].marker.setPopupContent(popupData);
         }
 
         planTrip();
     }
 
     geocoderControlFromPlace.on('select', function(res) {
-        setGeocodeMarker(fromMarker, 'Origin', res);
+        setGeocodeMarker('from', res);
     });
 
     geocoderControlToPlace.on('select', function(res) {
-        setGeocodeMarker(toMarker, 'Destination', res);
+        setGeocodeMarker('to', res);
         //L.mapbox.featureLayer(res.feature).addTo(map);
     });
 
