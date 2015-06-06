@@ -107,6 +107,9 @@ function planTrip() {
 
         tripLayer = L.geoJson(legsGeoJson, {style: L.mapbox.simplestyle.style}).addTo(map);
 
+        window.trip = tripLayer;
+        map.fitBounds(tripLayer.getBounds());
+
     });
 }
 
@@ -116,7 +119,6 @@ function markerDrag(event) {
     var position = marker.getLatLng();
     var latlng = new L.LatLng(position.lat, position.lng);
     marker.setLatLng(latlng, {draggable: true});
-    map.panTo(latlng); // allow user to drag marker off map
 
     marker.setPopupContent('<h3>' + marker.options.title + ':</h3><p>' + position.toString() + '</p>');
 
@@ -158,8 +160,8 @@ function setGeocodeMarker(markerType, result) {
 function geocodeSelect(control, locationType, result) {
     setGeocodeMarker(locationType, result);
     // clear input and hide it
-    $(control._form.firstChild).val('');
-    control._toggle();
+    $(control._input).val('');
+    control._closeIfOpen();
 }
 
 //map.locate();
@@ -196,6 +198,8 @@ $(document).ready(function() {
             //keepOpen: true,
             autocomplete: true
         });
+
+    window.geocoder = geocoderControlToPlace;
 
     map = L.mapbox.map('map', 'mapbox.streets', {zoomControl: false})
               // center on City Hall
