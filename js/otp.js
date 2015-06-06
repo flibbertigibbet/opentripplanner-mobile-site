@@ -22,13 +22,136 @@ $(document).ready(function() {
     });
     */
 
-    geocoderControlToPlace.on('select', function(res) {
-        console.log(res);
-        //console.log(JSON.stringify(res.feature));
-        //var coords = res.feature.center; // [lat,lon]
-        //var name = res.feature.place_name; // one-line address
+    /**
+     * Helper function to prepare the parameter string for consumption by the OTP api
+     *
+     * @param {Array} coordsFrom The coords in lat-lng which we would like to travel from
+     * @param {Array} coordsTo The coords in lat-lng which we would like to travel to
+     * @param {Object} when Moment.js object for date/time of travel
+     * @param {Object} extraOptions Other parameters to pass to OpenTripPlanner as-is
+     *
+     * @return {Object} Get parameters, ready for consumption
+     */
+    function prepareParams(coordsFrom, coordsTo, when, extraOptions) {
+        var formattedOpts = {
+            fromPlace: coordsFrom.join(','),
+            toPlace: coordsTo.join(','),
+            time: when.format('hh:mma'),
+            date: when.format('MM-DD-YYYY'),
+        };
 
-        L.mapbox.featureLayer(res.feature).addTo(map);
+        return $.extend(formattedOpts, extraOptions);
+    }
+
+    function getDirections(from, to, when, extraOptions) {
+        var deferred = $.Deferred();
+        var urlParams = prepareParams(from, to, when, extraOptions);
+        $.ajax({
+            url: 'http://opentrips.phl.io/otp/routers/default/plan',
+            type: 'GET',
+            crossDomain: true,
+            data: urlParams
+        }).then(function(data) {
+            if (data.plan) {
+                // Ensure unique itineraries.
+                // Due to issue: https://github.com/opentripplanner/OpenTripPlanner/issues/1894
+                // itineraries with transit + (bike/walk) can return 3 identical itineraries if only
+                // bike/walk used, and not transit.
+                var lastItinerary = null;
+                var planItineraries = _.reject(data.plan.itineraries, function(itinerary) {
+                    var thisItinerary = JSON.stringify(itinerary);
+                    if (lastItinerary === thisItinerary) {
+                        // found a duplicate itinerary; reject it
+                        lastItinerary = thisItinerary;
+                        return true;
+                    }
+                    lastItinerary = thisItinerary;
+                    return false;
+                });
+
+                // return the Itinerary objects for the unique collection
+                var itineraries = _(planItineraries).map(function(itinerary, i) {
+                    return itinerary;
+                }).value();
+                deferred.resolve(itineraries);
+            } else {
+                deferred.reject(data.error);
+            }
+        }, function (error) {
+            deferred.reject(error);
+        });
+        return deferred.promise();
+    }
+
+    var tripLayer = null;
+    function planTrip(to) {
+        // options to pass to OTP as-is
+        var otpOptions = {
+            mode: 'WALK',
+            arriveBy: false,
+            wheelchair: false,
+            maxWalk: 999999
+        };
+        var when = moment(); // now
+
+        var from = [39.952684, -75.163733]; // TODO: origin other than city hall
+        getDirections(from, to, when, otpOptions).then(function(result) {
+            console.log('got directions!');
+            console.log(result);
+
+            var legsGeoJson = _.map(result[0].legs, function(leg) {
+                var linestringGeoJson = L.Polyline.fromEncoded(leg.legGeometry.points).toGeoJSON();
+                linestringGeoJson.properties = leg;
+                return linestringGeoJson;
+            });
+
+            if (tripLayer && map.hasLayer(tripLayer)) {
+                map.removeLayer(tripLayer);
+            }
+
+            tripLayer = L.geoJson(legsGeoJson, {style: L.mapbox.simplestyle.style}).addTo(map);
+
+        });
+    }
+
+    var toMarker = null;
+
+    // helper for when marker dragged to new place
+    function markerDrag(event) {
+        var marker = event.target;
+        var position = marker.getLatLng();
+        var latlng = new L.LatLng(position.lat, position.lng);
+        marker.setLatLng(latlng, {draggable: true});
+        map.panTo(latlng); // allow user to drag marker off map
+
+        // TODO: reverse geocode? what if origin?
+        marker.setPopupContent('<h3>Destination:</h3><p>' + position.toString() + '</p>');
+
+        planTrip([position.lat, position.lng]);
+    }
+
+    geocoderControlToPlace.on('select', function(res) {
+        var coords = new L.LatLng(res.feature.center[1], res.feature.center[0]);
+        var placeName = res.feature.place_name; // one-line address
+
+        if (!toMarker) {
+            toMarker = L.marker(coords, {
+                icon: L.mapbox.marker.icon({
+                    'marker-color': 'ff8888' // green: '33CC33'
+                }),
+                draggable: true
+            });
+            toMarker.bindPopup(placeName);
+            toMarker.addTo(map);
+            toMarker.on('dragend', markerDrag);
+        } else {
+            toMarker.setLatLng(coords);
+            toMarker.setPopupContent('<h3>Destination:</h3><p>' + placeName + '</p>');
+        }
+
+        planTrip([res.feature.center[1], res.feature.center[0]]);
+        
+        //L.mapbox.featureLayer(res.feature).addTo(map);
     });
 
     // TODO: when only one result
