@@ -8,9 +8,7 @@ body { margin:0; padding:0; }
     z-index: 9999;
     left: 50%;
     margin-left:-25px;
-}
 
-button {
     background: rgba(153,204,51,0.9);
     color: white;
     border-radius: 22px 22px 22px 22px;
@@ -21,11 +19,6 @@ button {
     font-size: large;
     padding: 8px 8px 8px 8px;
     text-decoration: none;
-}
-
-.selected {
-    color: black;
-    background: rgba(239, 204, 255, 0.9);
 }
 
 button:hover {

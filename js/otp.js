@@ -86,7 +86,7 @@ function planTrip() {
 
     // options to pass to OTP as-is
     var otpOptions = {
-        mode: 'WALK',
+        mode: mode,
         arriveBy: false,
         wheelchair: false,
         maxWalk: 999999
@@ -225,16 +225,12 @@ function setupOverlay() {
             overlay.removeClass('open');
             overlay.addClass('close');
             var onEndTransitionFn = function( ev ) {
-                if( support.transitions ) {
-                    if(ev.propertyName !== 'visibility') return;
-                    this.removeEventListener(transEndEventName, onEndTransitionFn);
-                }
+                overlay.off(transEndEventName);
                 overlay.removeClass('close');
             };
             if(support.transitions) {
                 overlay.on(transEndEventName, onEndTransitionFn);
-            }
-            else {
+            } else {
                 onEndTransitionFn();
             }
         } else {
@@ -249,6 +245,8 @@ function setupOverlay() {
 $(document).ready(function() {
     $('.mode').click(function(event) {
         $(event.target).toggleClass('selected');
+        $(event.target).toggleClass('btn-default');
+        $(event.target).toggleClass('btn-primary');
         setMode();
     });
 
