@@ -13,6 +13,8 @@ var markers = {
     }
 };
 
+var mode = 'WALK,TRANSIT';
+
 var map, geocoderControlFromPlace, geocoderControlToPlace;
 
 /**
@@ -162,6 +164,19 @@ function setGeocodeMarker(markerType, result) {
     planTrip();
 }
 
+function setMode() {
+    modeArray = [];
+    $('.mode').each(function(idx, val) {
+        console.log(val);
+        var $btn = $(val);
+        if ($btn.hasClass('selected')) {
+            modeArray.push($btn.val());
+        }
+    });
+    mode = modeArray.join(',');
+    console.log(mode);
+}
+
 function geocodeSelect(control, locationType, result) {
     setGeocodeMarker(locationType, result);
     // clear input and hide it
@@ -206,7 +221,6 @@ function setupOverlay() {
     var support = { transitions : Modernizr.csstransitions };
 
     function toggleOverlay() {
-        console.log('toggle me');
         if(overlay.hasClass('open')) {
             overlay.removeClass('open');
             overlay.addClass('close');
@@ -233,9 +247,10 @@ function setupOverlay() {
 }
 
 $(document).ready(function() {
-    /*$('#trigger-overlay').click(function() {
-        console.log('yo');
-    });*/
+    $('.mode').click(function(event) {
+        $(event.target).toggleClass('selected');
+        setMode();
+    });
 
     L.mapbox.accessToken = 'pk.eyJ1IjoiYmFuZGVya2F0IiwiYSI6ImVOaHNNa0UifQ.WkAeLdchgBBxJvmZ8tk0Yw';
 

@@ -3,24 +3,32 @@ body { margin:0; padding:0; }
 #map { position:absolute; top:0; bottom:0; width:100%; }
 
 #trigger-overlay {
-    background: rgba(239, 204, 255, 0.9);
-    color: #2E2E1E;
     position: absolute;
     top: 2%;
     z-index: 9999;
     left: 50%;
     margin-left:-25px;
+}
+
+button {
+    background: rgba(153,204,51,0.9);
+    color: white;
     border-radius: 22px 22px 22px 22px;
     -moz-border-radius: 22px 22px 22px 22px;
     -webkit-border-radius: 22px 22px 22px 22px;
-    border: 0px solid #000000;
+    border: 2px solid rgba(239, 204, 255, 0.9);
     font-weight: bold;
     font-size: large;
-    padding: 6px 6px 6px 6px;
+    padding: 8px 8px 8px 8px;
     text-decoration: none;
 }
 
-#trigger-overlay:hover {
+.selected {
+    color: black;
+    background: rgba(239, 204, 255, 0.9);
+}
+
+button:hover {
     cursor: pointer;
     border: 2px solid #9ecaed;
     box-shadow: 0 0 10px #9ecaed;
@@ -93,6 +101,15 @@ body { margin:0; padding:0; }
 .overlay ul li a:hover,
 .overlay ul li a:focus {
     color: #e3fcb1;
+}
+
+.overlay table {
+    table-layout: fixed;
+    width: 80%;
+}
+
+.overlay tr {
+    width: 33%
 }
 
 /* Effects */
