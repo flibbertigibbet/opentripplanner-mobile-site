@@ -25,7 +25,7 @@ var modeColors = {
 
 var mode = 'WALK,TRANSIT';
 
-var map, geocoderControlFromPlace, geocoderControlToPlace;
+var map, geocoderControlFromPlace, geocoderControlToPlace, contextPopup;
 
 /**
  * Helper function to prepare the parameter string for consumption by the OTP API
@@ -201,6 +201,56 @@ function geocodeSelect(control, locationType, result) {
     control._closeIfOpen();
 }
 
+function setOrigin(lat, lng) {
+    markers.from.location = [lat, lng];
+    var origin = new L.LatLng(lat, lng);
+    var popupData = '<h3>' + markers.from.label + ':</h3><p>' + origin.toString() + '</p>';
+    if (!markers.from.marker) {
+        markers.from.marker = L.marker(origin, {
+            icon: L.mapbox.marker.icon({
+                'marker-color':  markers.from.color
+            }),
+            draggable: true,
+            title: markers.from.label // hover text
+        }
+        ).bindPopup(popupData)
+        .on('dragend', markerDrag)
+        .addTo(map);
+    } else {
+        markers.from.marker.setLatLng(origin);
+        markers.from.marker.setPopupContent(popupData);
+    }
+
+    contextPopup._close();
+
+    planTrip();
+}
+
+function setDestination(lat, lng) {
+    markers.to.location = [lat, lng];
+    var destination = new L.LatLng(lat, lng);
+    var popupData = '<h3>' + markers.to.label + ':</h3><p>' + destination.toString() + '</p>';
+    if (!markers.to.marker) {
+        markers.to.marker = L.marker(destination, {
+            icon: L.mapbox.marker.icon({
+                'marker-color':  markers.to.color
+            }),
+            draggable: true,
+            title: markers.to.label // hover text
+        }
+        ).bindPopup(popupData)
+        .on('dragend', markerDrag)
+        .addTo(map);
+    } else {
+        markers.to.marker.setLatLng(destination);
+        markers.to.marker.setPopupContent(popupData);
+    }
+
+    contextPopup._close();
+
+    planTrip();
+}
+
 //map.locate();
 // Once we've got a position, zoom and center the map on it, and add a single marker.
 /*
@@ -320,8 +370,13 @@ $(document).ready(function() {
     setupOverlay();
 
     map.on('contextmenu',function(e){
-        console.log('contextmenu'); // TODO: prompt to add start/end here
-        console.log(e);
+        contextPopup = L.popup();
+        contextPopup.setContent('<p><a href="#" onclick="setOrigin(' + e.latlng.lat + ',' + e.latlng.lng + 
+                         ')">Start here</a></p>' +
+                         '<p><a href="#" onclick="setDestination(' + e.latlng.lat + ',' + e.latlng.lng + 
+                         ')">End here</a></p>');
+        contextPopup.setLatLng(e.latlng);
+        contextPopup.addTo(map);
     });
 
     //L.control.locate().addTo(map);
