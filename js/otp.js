@@ -14,12 +14,13 @@ var markers = {
 };
 
 var modeColors = {
-    'WALK': 'gray',
-    'BICYCLE': 'blue',
+    'WALK': '#333300',
+    'BICYCLE': '#3333CC',
     'BUS': '#FF0000',
     'TRAIN': '#996633',
     'SUBWAY': '#CC0099',
-    'TRAM': 'green'
+    'TRAM': '#FFFF00',
+    'RAIL': '#669900' // PATCO
 };
 
 var mode = 'WALK,TRANSIT';
