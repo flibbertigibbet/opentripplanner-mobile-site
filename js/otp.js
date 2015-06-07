@@ -105,9 +105,14 @@ function planTrip() {
             map.removeLayer(tripLayer);
         }
 
-        tripLayer = L.geoJson(legsGeoJson, {style: L.mapbox.simplestyle.style}).addTo(map);
+        legsGeoJson.properties = {
+            "stroke": "#fa946e",
+            "stroke-opacity": 1,
+            "stroke-width": 6
+        };
 
-        window.trip = tripLayer;
+        tripLayer = L.geoJson(legsGeoJson).addTo(map);
+        window.legsGeoJson = legsGeoJson;
         map.fitBounds(tripLayer.getBounds());
 
     });
