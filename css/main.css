@@ -2,6 +2,13 @@ body { margin:0; padding:0; }
 
 #map { position:absolute; top:0; bottom:0; width:100%; }
 
+div.btn-toolbar {
+    margin: 0 auto; 
+    text-align: center;
+    width: inherit;
+    display: inline-block;
+}
+
 #trigger-overlay {
     position: absolute;
     top: 2%;
@@ -21,7 +28,7 @@ body { margin:0; padding:0; }
     text-decoration: none;
 }
 
-button:hover {
+#trigger-overlay:hover {
     cursor: pointer;
     border: 2px solid #9ecaed;
     box-shadow: 0 0 10px #9ecaed;
@@ -94,15 +101,6 @@ button:hover {
 .overlay ul li a:hover,
 .overlay ul li a:focus {
     color: #e3fcb1;
-}
-
-.overlay table {
-    table-layout: fixed;
-    width: 80%;
-}
-
-.overlay tr {
-    width: 33%
 }
 
 /* Effects */

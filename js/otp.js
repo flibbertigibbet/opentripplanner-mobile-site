@@ -13,6 +13,15 @@ var markers = {
     }
 };
 
+var modeColors = {
+    'WALK': 'gray',
+    'BICYCLE': 'blue',
+    'BUS': '#FF0000',
+    'TRAIN': '#996633',
+    'SUBWAY': '#CC0099',
+    'TRAM': 'green'
+};
+
 var mode = 'WALK,TRANSIT';
 
 var map, geocoderControlFromPlace, geocoderControlToPlace;
@@ -107,14 +116,18 @@ function planTrip() {
             map.removeLayer(tripLayer);
         }
 
-        legsGeoJson.properties = {
-            "stroke": "#fa946e",
-            "stroke-opacity": 1,
-            "stroke-width": 6
-        };
+        tripLayer = L.geoJson(legsGeoJson);
 
-        tripLayer = L.geoJson(legsGeoJson).addTo(map);
-        window.legsGeoJson = legsGeoJson;
+        tripLayer.eachLayer(function(layer) {
+            var modeColor = modeColors[layer.feature.properties.mode];
+            if (modeColor) {
+                layer.setStyle({color: modeColor });
+            } else {
+                console.warn('no color for mode ' + layer.feature.properties.mode);
+            }
+        });
+
+        tripLayer.addTo(map);
         map.fitBounds(tripLayer.getBounds());
 
     });
