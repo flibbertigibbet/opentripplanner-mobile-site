@@ -2,7 +2,7 @@ body { margin:0; padding:0; }
 
 #map { position:absolute; top:0; bottom:0; width:100%; }
 
-#options-btn {
+#trigger-overlay {
     background: rgba(239, 204, 255, 0.9);
     color: #2E2E1E;
     position: absolute;
@@ -20,59 +20,103 @@ body { margin:0; padding:0; }
     text-decoration: none;
 }
 
-#options-btn:hover {
+#trigger-overlay:hover {
+    cursor: pointer;
     border: 2px solid #9ecaed;
     box-shadow: 0 0 10px #9ecaed;
 }
 
-.modalDialog {
+/* Overlay style */
+.overlay {
     position: fixed;
-    font-family: Arial, Helvetica, sans-serif;
+    width: 100%;
+    height: 100%;
     top: 0;
-    right: 0;
-    bottom: 0;
     left: 0;
-    background: rgba(0, 0, 0, 0.8);
-    z-index: 99999;
-    opacity:0;
-    -webkit-transition: opacity 400ms ease-in;
-    -moz-transition: opacity 400ms ease-in;
-    transition: opacity 400ms ease-in;
-    pointer-events: none;
+    background: rgba(153,204,51,0.9);
 }
-.modalDialog:target {
-    opacity:1;
-    pointer-events: auto;
-}
-.modalDialog > div {
-    width: 400px;
-    position: relative;
-    margin: 10% auto;
-    padding: 5px 20px 13px 20px;
-    border-radius: 10px;
-    background: rgb(239, 204, 255);
-    background: -moz-linear-gradient(rgb(239, 204, 255), #999);
-    background: -webkit-linear-gradient(rgb(239, 204, 255), #999);
-    background: -o-linear-gradient(rgb(239, 204, 255), #999);
-}
-.close {
-    background: #606061;
-    color: #FFFFFF;
-    line-height: 25px;
+
+/* Overlay closing cross */
+.overlay .overlay-close {
+    width: 80px;
+    height: 80px;
     position: absolute;
-    right: -12px;
-    text-align: center;
-    top: -10px;
-    width: 24px;
-    text-decoration: none;
-    font-weight: bold;
-    -webkit-border-radius: 12px;
-    -moz-border-radius: 12px;
-    border-radius: 12px;
-    -moz-box-shadow: 1px 1px 3px #000;
-    -webkit-box-shadow: 1px 1px 3px #000;
-    box-shadow: 1px 1px 3px #000;
+    right: 20px;
+    top: 20px;
+    overflow: hidden;
+    border: none;
+    background: url(../img/cross.png) no-repeat center center;
+    text-indent: 200%;
+    color: transparent;
+    outline: none;
+    z-index: 100;
 }
-.close:hover {
-    background: #00d9ff;
+
+/* Menu style */
+.overlay nav {
+    text-align: center;
+    position: relative;
+    top: 50%;
+    height: 60%;
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+.overlay ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+    display: inline-block;
+    height: 100%;
+    position: relative;
+}
+
+.overlay ul li {
+    display: block;
+    height: 20%;
+    height: calc(100% / 5);
+    min-height: 54px;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+.overlay ul li a {
+    font-size: 54px;
+    font-weight: 300;
+    display: block;
+    color: #fff;
+    -webkit-transition: color 0.2s;
+    transition: color 0.2s;
+}
+
+.overlay ul li a:hover,
+.overlay ul li a:focus {
+    color: #e3fcb1;
+}
+
+/* Effects */
+.overlay-slidedown {
+    visibility: hidden;
+    -webkit-transform: translateY(-100%);
+    transform: translateY(-100%);
+    -webkit-transition: -webkit-transform 0.4s ease-in-out, visibility 0s 0.4s;
+    transition: transform 0.4s ease-in-out, visibility 0s 0.4s;
+}
+
+.overlay-slidedown.open {
+    visibility: visible;
+    -webkit-transform: translateY(0%);
+    transform: translateY(0%);
+    -webkit-transition: -webkit-transform 0.4s ease-in-out;
+    transition: transform 0.4s ease-in-out;
+}
+
+@media screen and (max-height: 30.5em) {
+    .overlay nav {
+        height: 70%;
+        font-size: 34px;
+    }
+    .overlay ul li {
+        min-height: 34px;
+    }
 }

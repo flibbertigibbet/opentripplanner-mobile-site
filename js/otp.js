@@ -190,10 +190,52 @@ map.on('locationfound', function(e) {
 });
 */
 
+// based on https://github.com/codrops/FullscreenOverlayStyles
+function setupOverlay() {
+    var triggerBtn = $('#trigger-overlay');
+    var overlay = $('.overlay');
+    var closeBtn = $('.overlay-close');
+    var transEndEventNames = {
+            'WebkitTransition': 'webkitTransitionEnd',
+            'MozTransition': 'transitionend',
+            'OTransition': 'oTransitionEnd',
+            'msTransition': 'MSTransitionEnd',
+            'transition': 'transitionend'
+        };
+    var transEndEventName = transEndEventNames[ Modernizr.prefixed('transition') ];
+    var support = { transitions : Modernizr.csstransitions };
+
+    function toggleOverlay() {
+        console.log('toggle me');
+        if(overlay.hasClass('open')) {
+            overlay.removeClass('open');
+            overlay.addClass('close');
+            var onEndTransitionFn = function( ev ) {
+                if( support.transitions ) {
+                    if(ev.propertyName !== 'visibility') return;
+                    this.removeEventListener(transEndEventName, onEndTransitionFn);
+                }
+                overlay.removeClass('close');
+            };
+            if(support.transitions) {
+                overlay.on(transEndEventName, onEndTransitionFn);
+            }
+            else {
+                onEndTransitionFn();
+            }
+        } else {
+            overlay.addClass('open');
+        }
+    }
+
+    triggerBtn.click(toggleOverlay);
+    closeBtn.click(toggleOverlay);
+}
+
 $(document).ready(function() {
-    $('#options-btn').click(function() {
+    /*$('#trigger-overlay').click(function() {
         console.log('yo');
-    });
+    });*/
 
     L.mapbox.accessToken = 'pk.eyJ1IjoiYmFuZGVya2F0IiwiYSI6ImVOaHNNa0UifQ.WkAeLdchgBBxJvmZ8tk0Yw';
 
@@ -244,6 +286,8 @@ $(document).ready(function() {
 
     // open 'to' input on page load
     geocoderControlToPlace._toggle();
+
+    setupOverlay();
 
     //L.control.locate().addTo(map);
 });
