@@ -319,5 +319,10 @@ $(document).ready(function() {
 
     setupOverlay();
 
+    map.on('contextmenu',function(e){
+        console.log('contextmenu'); // TODO: prompt to add start/end here
+        console.log(e);
+    });
+
     //L.control.locate().addTo(map);
 });
