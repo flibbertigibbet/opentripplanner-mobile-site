@@ -13,6 +13,18 @@ var markers = {
     }
 };
 
+var modeColors = {
+    'WALK': '#333300',
+    'BICYCLE': '#3333CC',
+    'BUS': '#FF0000',
+    'TRAIN': '#996633',
+    'SUBWAY': '#CC0099',
+    'TRAM': '#FFFF00',
+    'RAIL': '#669900' // PATCO
+};
+
+var mode = 'WALK,TRANSIT';
+
 var map, geocoderControlFromPlace, geocoderControlToPlace;
 
 /**
@@ -84,7 +96,7 @@ function planTrip() {
 
     // options to pass to OTP as-is
     var otpOptions = {
-        mode: 'WALK',
+        mode: mode,
         arriveBy: false,
         wheelchair: false,
         maxWalk: 999999
@@ -105,9 +117,18 @@ function planTrip() {
             map.removeLayer(tripLayer);
         }
 
-        tripLayer = L.geoJson(legsGeoJson, {style: L.mapbox.simplestyle.style}).addTo(map);
+        tripLayer = L.geoJson(legsGeoJson);
 
-        window.trip = tripLayer;
+        tripLayer.eachLayer(function(layer) {
+            var modeColor = modeColors[layer.feature.properties.mode];
+            if (modeColor) {
+                layer.setStyle({color: modeColor });
+            } else {
+                console.warn('no color for mode ' + layer.feature.properties.mode);
+            }
+        });
+
+        tripLayer.addTo(map);
         map.fitBounds(tripLayer.getBounds());
 
     });
@@ -157,6 +178,19 @@ function setGeocodeMarker(markerType, result) {
     planTrip();
 }
 
+function setMode() {
+    modeArray = [];
+    $('.mode').each(function(idx, val) {
+        console.log(val);
+        var $btn = $(val);
+        if ($btn.hasClass('selected')) {
+            modeArray.push($btn.val());
+        }
+    });
+    mode = modeArray.join(',');
+    console.log(mode);
+}
+
 function geocodeSelect(control, locationType, result) {
     setGeocodeMarker(locationType, result);
     // clear input and hide it
@@ -185,9 +219,49 @@ map.on('locationfound', function(e) {
 });
 */
 
+// based on https://github.com/codrops/FullscreenOverlayStyles
+function setupOverlay() {
+    var triggerBtn = $('#trigger-overlay');
+    var overlay = $('.overlay');
+    var closeBtn = $('.overlay-close');
+    var transEndEventNames = {
+            'WebkitTransition': 'webkitTransitionEnd',
+            'MozTransition': 'transitionend',
+            'OTransition': 'oTransitionEnd',
+            'msTransition': 'MSTransitionEnd',
+            'transition': 'transitionend'
+        };
+    var transEndEventName = transEndEventNames[ Modernizr.prefixed('transition') ];
+    var support = { transitions : Modernizr.csstransitions };
+
+    function toggleOverlay() {
+        if(overlay.hasClass('open')) {
+            overlay.removeClass('open');
+            overlay.addClass('close');
+            var onEndTransitionFn = function( ev ) {
+                overlay.off(transEndEventName);
+                overlay.removeClass('close');
+            };
+            if(support.transitions) {
+                overlay.on(transEndEventName, onEndTransitionFn);
+            } else {
+                onEndTransitionFn();
+            }
+        } else {
+            overlay.addClass('open');
+        }
+    }
+
+    triggerBtn.click(toggleOverlay);
+    closeBtn.click(toggleOverlay);
+}
+
 $(document).ready(function() {
-    $('#options-btn').click(function() {
-        console.log('yo');
+    $('.mode').click(function(event) {
+        $(event.target).toggleClass('selected');
+        $(event.target).toggleClass('btn-default');
+        $(event.target).toggleClass('btn-primary');
+        setMode();
     });
 
     L.mapbox.accessToken = 'pk.eyJ1IjoiYmFuZGVya2F0IiwiYSI6ImVOaHNNa0UifQ.WkAeLdchgBBxJvmZ8tk0Yw';
@@ -239,6 +313,8 @@ $(document).ready(function() {
 
     // open 'to' input on page load
     geocoderControlToPlace._toggle();
+
+    setupOverlay();
 
     //L.control.locate().addTo(map);
 });
