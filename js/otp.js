@@ -89,7 +89,7 @@ function getDirections(from, to, when, extraOptions) {
 }
 
 var tripLayer = null;
-function planTrip() {
+var planTrip = _.debounce(function() {
     if (!markers.from.location || !markers.to.location) {
         return;
     }
@@ -132,7 +132,7 @@ function planTrip() {
         map.fitBounds(tripLayer.getBounds());
 
     });
-}
+}, 500, true);
 
 // helper for when marker dragged to new place
 function markerDrag(event) {
@@ -187,8 +187,11 @@ function setMode() {
             modeArray.push($btn.val());
         }
     });
+    var lastMode = mode;
     mode = modeArray.join(',');
-    console.log(mode);
+    if (lastMode != mode) {
+        planTrip(); // mode changed; redraw trip
+    }
 }
 
 function geocodeSelect(control, locationType, result) {
