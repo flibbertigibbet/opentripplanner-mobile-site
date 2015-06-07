@@ -34,6 +34,7 @@ body { margin:0; padding:0; }
     top: 0;
     left: 0;
     background: rgba(153,204,51,0.9);
+    z-index: 99999;
 }
 
 /* Overlay closing cross */
