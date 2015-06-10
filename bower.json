@@ -1,0 +1,23 @@
+{
+  "name": "openTripPlannerMobileSite",
+  "version": "0.1.0",
+  "homepage": "",
+  "license": "MIT",
+  "authors": ["Kathryn Killebrew"],
+  "description": "Mobile-friendly website frontend to OpenTripPlanner",
+  "dependencies": {
+    "mapbox.js": "",
+    "Leaflet.encoded": "^0.0.7",
+    "jquery": "^2.1.4",
+    "lodash": "^3.9.3",
+    "moment": "^2.10.3",
+    "modernizr": "^2.8.3",
+    "bootstrap": "^3.3.4"
+  },
+  "devDependencies": {
+  },
+  "ignore": [
+    "node_modules",
+    "bower_components"
+  ]
+}
