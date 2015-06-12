@@ -89,7 +89,7 @@ function getDirections(from, to, when, extraOptions) {
 }
 
 var tripLayer = null;
-var planTrip = _.debounce(function() {
+var planTrip = _.throttle(function() {
     if (!markers.from.location || !markers.to.location) {
         return;
     }
@@ -132,7 +132,7 @@ var planTrip = _.debounce(function() {
         map.fitBounds(tripLayer.getBounds());
 
     });
-}, 500, true);
+}, 500, {'leading': true, 'trailing': true});
 
 // helper for when marker dragged to new place
 function markerDrag(event) {
@@ -329,8 +329,6 @@ $(document).ready(function() {
             //keepOpen: true,
             autocomplete: true
         });
-
-    window.geocoder = geocoderControlToPlace;
 
     map = L.mapbox.map('map', 'mapbox.streets', {zoomControl: false})
               // center on City Hall
