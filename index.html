@@ -7,7 +7,7 @@
         <meta name="keywords" content="OpenTripPlanner, Code for Philly, multimodal, trip planner, Philadelphia, Indego, SEPTA, PATCO, NJ TRANSIT" />
         <meta name="author" content="Kathryn Killebrew" />
 
-        <!-- bower-installed files included using grunt-wiredep -->
+        <!-- build:js scripts/vendor.js -->
         <!-- bower:js -->
         <script src="bower_components/modernizr/modernizr.js"></script>
         <script src="bower_components/jquery/dist/jquery.js"></script>
@@ -17,23 +17,22 @@
         <script src="bower_components/moment/moment.js"></script>
         <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
         <!-- endbower -->
+        <!-- endbuild -->
 
+        <!-- build:js scripts/app.js -->
+        <script src="js/otp.js"></script>
+        <!-- endbuild -->
+        
+        <!-- build:css styles/vendor.css -->
         <!-- bower:css -->
         <link rel="stylesheet" href="bower_components/mapbox.js/mapbox.css" />
         <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
         <!-- endbower -->
+        <!-- endbuild -->
 
-        <!-- <script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.43.0/L.Control.Locate.min.js'></script>
-        <link href='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.43.0/L.Control.Locate.mapbox.css' rel='stylesheet' />
-        -->
-        <!--[if lt IE 9]>
-        <link href='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.43.0/L.Control.Locate.ie.css' rel='stylesheet' />
-        <![endif]-->
-        <!--
-        <link href='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.43.0/css/font-awesome.min.css' rel='stylesheet' />
-        -->
+        <!-- build:css styles/app.css -->
         <link rel="stylesheet" type="text/css" href="styles/main.css">
-        <script src="js/otp.js"></script>
+        <!-- endbuild -->
     </head>
     <body>
         <div id='map'></div>
