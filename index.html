@@ -6,13 +6,23 @@
         <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
         <meta name="keywords" content="OpenTripPlanner, Code for Philly, multimodal, trip planner, Philadelphia, Indego, SEPTA, PATCO, NJ TRANSIT" />
         <meta name="author" content="Kathryn Killebrew" />
-        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment-with-locales.min.js"></script>
-        <script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.9/mapbox.js'></script>
-        <link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.9/mapbox.css' rel='stylesheet' />
-        <link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css' rel='stylesheet' />
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
+        <!-- bower-installed files included using grunt-wiredep -->
+        <!-- bower:js -->
+        <script src="bower_components/modernizr/modernizr.js"></script>
+        <script src="bower_components/jquery/dist/jquery.js"></script>
+        <script src="bower_components/mapbox.js/mapbox.js"></script>
+        <script src="bower_components/Leaflet.encoded/Polyline.encoded.js"></script>
+        <script src="bower_components/lodash/lodash.js"></script>
+        <script src="bower_components/moment/moment.js"></script>
+        <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+        <!-- endbower -->
+
+        <!-- bower:css -->
+        <link rel="stylesheet" href="bower_components/mapbox.js/mapbox.css" />
+        <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+        <!-- endbower -->
+
         <!-- <script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.43.0/L.Control.Locate.min.js'></script>
         <link href='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.43.0/L.Control.Locate.mapbox.css' rel='stylesheet' />
         -->
@@ -22,9 +32,7 @@
         <!--
         <link href='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.43.0/css/font-awesome.min.css' rel='stylesheet' />
         -->
-        <script src="js/Polyline.encoded.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="css/main.css">
-        <script src="js/modernizr.custom.js"></script>
+        <link rel="stylesheet" type="text/css" href="styles/main.css">
         <script src="js/otp.js"></script>
     </head>
     <body>
